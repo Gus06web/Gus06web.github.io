@@ -221,7 +221,7 @@ chartLq = new Chart(document.getElementById('graficaLq'), {
     chartRho = new Chart(document.getElementById('graficaRho'), {
         type: 'pie', // Especificación de gráfica de pastel
         data: {
-            labels: ['Tiempo Ocupados Trabajando (%)', 'Tiempo Libres Esperando (%)'],
+            labels: ['Tiempo Ocupados Trabajando ('porcOcupado.toFixed(1)'+%)', 'Tiempo Libres Esperando ( 'porcLibre.toFixed(1)'+%)'],
             datasets: [{
                 data: [porcOcupado.toFixed(1), porcLibre.toFixed(1)],
                 backgroundColor: ['#e74c3c', '#2ecc71'],
