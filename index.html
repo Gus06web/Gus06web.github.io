@@ -158,20 +158,18 @@ function calcularOperacion() {
     if (chartRho) chartRho.destroy();
     if (chartWq) chartWq.destroy();
 
- // Gráfica 1: Clientes en Cola (Línea)
+// Gráfica 1: Clientes en Cola (Barras)
 chartLq = new Chart(document.getElementById('graficaLq'), {
-    type: 'line',
+    type: 'bar', // <- Cambiado de 'line' a 'bar'
     data: {
         labels: labelsEmpleados,
         datasets: [{
             label: 'Cantidad de Clientes',
             data: datosLq,
+            // Definimos un color de fondo y de borde sólido para las barras
+            backgroundColor: 'rgba(52, 152, 219, 0.7)', // Azul con un poco de transparencia
             borderColor: '#3498db',
-            backgroundColor: 'rgba(52, 152, 219, 0.1)',
-            fill: true,
-            pointBackgroundColor: coloresPuntos,
-            pointRadius: radiosPuntos,
-            tension: 0.2
+            borderWidth: 1 // Grosor del borde de las barras
         }]
     },
     options: {
@@ -184,12 +182,12 @@ chartLq = new Chart(document.getElementById('graficaLq'), {
                     text: 'Personal Disponible en Ventanilla', 
                     color: '#111', 
                     font: { weight: 'bold', size: 12 },
-                    padding: { top: 10, bottom: 0 } // Despeja el título hacia abajo
+                    padding: { top: 10, bottom: 0 }
                 },
                 ticks: {
-                    maxRotation: 0, // Fuerza las etiquetas horizontales
+                    maxRotation: 0,
                     minRotation: 0,
-                    autoSkip: true,  // Evita colisiones si hay muchas barras/puntos
+                    autoSkip: true,  
                     font: { size: 10 }
                 }
             },
@@ -199,7 +197,7 @@ chartLq = new Chart(document.getElementById('graficaLq'), {
                     text: 'Número Promedio de Personas en Fila', 
                     color: '#111', 
                     font: { weight: 'bold', size: 12 },
-                    padding: { top: 0, bottom: 10 } // Despeja el título hacia la izquierda
+                    padding: { top: 0, bottom: 10 }
                 }, 
                 beginAtZero: true,
                 ticks: {
@@ -214,31 +212,51 @@ chartLq = new Chart(document.getElementById('graficaLq'), {
         }
     }
 });
-    // Gráfica 2: Ocupación Actual (Gráfica de Pastel / Dona)
-    let porcOcupado = (rhoActual * 100);
-    let porcLibre = 100 - porcOcupado;
-    
-    chartRho = new Chart(document.getElementById('graficaRho'), {
-        type: 'pie', // Especificación de gráfica de pastel
-        data: {
-            labels: ['Tiempo Ocupados Trabajando ('porcOcupado.toFixed(1)'+%)', 'Tiempo Libres Esperando ( 'porcLibre.toFixed(1)'+%)'],
-            datasets: [{
-                data: [porcOcupado.toFixed(1), porcLibre.toFixed(1)],
-                backgroundColor: ['#e74c3c', '#2ecc71'],
-                borderWidth: 1
-            }]
-        },
-        options: {
-            plugins: {
-                tooltip: {
-                    callbacks: {
-                        label: function(context) { return context.label + ': ' + context.raw + '%'; }
+ // Gráfica 2: Ocupación Actual (Gráfica de Pastel / Dona)
+let porcOcupado = (rhoActual * 100);
+let porcLibre = 100 - porcOcupado;
+
+chartRho = new Chart(document.getElementById('graficaRho'), {
+    type: 'pie', 
+    plugins: [ChartDataLabels], // <-- 1. Registramos el plugin aquí
+    data: {
+        // Corregida la concatenación de strings aquí:
+        labels: [
+            'Tiempo Ocupados Trabajando (' + porcOcupado.toFixed(1) + '%)', 
+            'Tiempo Libres Esperando (' + porcLibre.toFixed(1) + '%)'
+        ],
+        datasets: [{
+            data: [porcOcupado.toFixed(1), porcLibre.toFixed(1)],
+            backgroundColor: ['#e74c3c', '#2ecc71'],
+            borderWidth: 1
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+// 2. Configuración de las etiquetas visibles
+            datalabels: {
+                color: '#fff', // Color del texto (blanco para que resalte)
+                font: {
+                    weight: 'bold',
+                    size: 14 // Tamaño de la fuente del porcentaje
+                },
+                // Función para formatear el texto y agregar el símbolo de '%'
+                formatter: function(value, context) {
+                    return value + '%'; 
+                }
+            },
+            tooltip: {
+                callbacks: {
+                    label: function(context) { 
+                        return context.label + ': ' + context.raw + '%'; 
                     }
                 }
             }
         }
-    });
-
+    }
+});
     // Gráfica 3: Tiempo de Espera (Línea)
     chartWq = new Chart(document.getElementById('graficaWq'), {
         type: 'line',
