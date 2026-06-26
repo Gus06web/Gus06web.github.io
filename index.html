@@ -63,14 +63,17 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
 <script>
 let chartLq = null, chartRho = null, chartWq = null;
 
+// Desactivamos la carga global automática del plugin para que no altere las gráficas de barra y línea
+Chart.register(ChartDataLabels);
+
 function calcularOperacion() {
-    // 1. CAPTURA DE VALORES
     let Emple = parseInt(document.getElementById("nombre").value);
     let tiempo = parseFloat(document.getElementById("tiempo").value);
     let totalClientes = parseInt(document.getElementById("numClientes").value);
@@ -82,23 +85,18 @@ function calcularOperacion() {
         return;
     }
 
-    // 2. LOGICA OPERACIONAL DEPENDIENDO DE LOS CLIENTES Y TIEMPO
-    // Tasa de llegada (lambda): Clientes por minuto
     let lambda = totalClientes / tiempo; 
-    // Tasa de servicio estimada (mu): Un empleado atiende un promedio de 0.1 clientes por minuto (1 cliente cada 10 min)
     let mu = 0.1; 
     
     let r = lambda / mu; 
     let rhoActual = lambda / (Emple * mu);
 
-    // Validación de estabilidad del sistema (Si está sobrecargado, no se puede calcular colas estables)
     if (rhoActual >= 1) {
         divResultado.style.display = "inline-block";
         divResultado.innerHTML = "<span style='color: #721c24;'><b>Sistema Inestable:</b> Los empleados no dan abasto para la cantidad de clientes en ese tiempo. Incrementa los empleados o el tiempo de simulación.</span>";
         return;
     }
 
-    // CÁLCULO MODELO ANALÍTICO M/M/s
     let sumaSuma = 0.0;
     for (let n = 0; n < Emple; n++) {
         let factN = 1; for (let i = 1; i <= n; i++) { factN *= i; }
@@ -109,7 +107,6 @@ function calcularOperacion() {
     let lqActual = (p0 * Math.pow(r, Emple) * rhoActual) / (factS * Math.pow(1.0 - rhoActual, 2));
     let wqActual = lqActual / lambda; 
 
-    // Mostrar resultados textuales sencillos
     divResultado.style.display = "inline-block";
     divResultado.innerHTML = 
         "<b>Resultados del Escenario Actual:</b><br>" +
@@ -117,14 +114,12 @@ function calcularOperacion() {
         "• Uso promedio del personal: <b>" + (rhoActual * 100).toFixed(2) + "%</b><br>" +
         "• Tiempo de espera promedio: <b>" + wqActual.toFixed(2) + "</b> minutos.";
 
-    // 3. PROYECCIONES PARA LAS GRÁFICAS DE LÍNEAS
     let labelsEmpleados = [];
     let datosLq = [];
     let datosWq = [];
     let coloresPuntos = [];
     let radiosPuntos = [];
 
-    // Graficamos un rango de empleados viables para comparar
     let minEmpleadosGrafica = Math.max(1, Math.ceil(r + 0.1)); 
     let maxEmpleadosGrafica = minEmpleadosGrafica + 4;
 
@@ -146,117 +141,92 @@ function calcularOperacion() {
 
         if (s === Emple) {
             coloresPuntos.push("#2ecc71"); 
-            radiosPuntos.push(8);          
+            radiasPuntos = 8;                  
         } else {
             coloresPuntos.push("#e74c3c"); 
             radiosPuntos.push(4);
         }
     }
 
-    // 4. RENDERIZADO DE GRÁFICAS CON CHART.JS Y EJES EXPLICADOS
     if (chartLq) chartLq.destroy();
     if (chartRho) chartRho.destroy();
     if (chartWq) chartWq.destroy();
 
-// Gráfica 1: Clientes en Cola (Barras)
-chartLq = new Chart(document.getElementById('graficaLq'), {
-    type: 'bar', // <- Cambiado de 'line' a 'bar'
-    data: {
-        labels: labelsEmpleados,
-        datasets: [{
-            label: 'Cantidad de Clientes',
-            data: datosLq,
-            // Definimos un color de fondo y de borde sólido para las barras
-            backgroundColor: 'rgba(52, 152, 219, 0.7)', // Azul con un poco de transparencia
-            borderColor: '#3498db',
-            borderWidth: 1 // Grosor del borde de las barras
-        }]
-    },
-    options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        scales: {
-            x: { 
-                title: { 
-                    display: true, 
-                    text: 'Personal Disponible en Ventanilla', 
-                    color: '#111', 
-                    font: { weight: 'bold', size: 12 },
-                    padding: { top: 10, bottom: 0 }
+    // Gráfica 1: Clientes en Cola (Barras)
+    chartLq = new Chart(document.getElementById('graficaLq'), {
+        type: 'bar', 
+        data: {
+            labels: labelsEmpleados,
+            datasets: [{
+                label: 'Cantidad de Clientes',
+                data: datosLq,
+                backgroundColor: 'rgba(52, 152, 219, 0.7)', 
+                borderColor: '#3498db',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: { 
+                    title: { display: true, text: 'Personal Disponible en Ventanilla', color: '#111', font: { weight: 'bold', size: 12 }, padding: { top: 10, bottom: 0 } },
+                    ticks: { maxRotation: 0, minRotation: 0, autoSkip: true, font: { size: 10 } }
                 },
-                ticks: {
-                    maxRotation: 0,
-                    minRotation: 0,
-                    autoSkip: true,  
-                    font: { size: 10 }
+                y: { 
+                    title: { display: true, text: 'Número Promedio de Personas en Fila', color: '#111', font: { weight: 'bold', size: 12 }, padding: { top: 0, bottom: 10 } }, 
+                    beginAtZero: true,
+                    ticks: { font: { size: 10 } }
                 }
             },
-            y: { 
-                title: { 
-                    display: true, 
-                    text: 'Número Promedio de Personas en Fila', 
-                    color: '#111', 
-                    font: { weight: 'bold', size: 12 },
-                    padding: { top: 0, bottom: 10 }
-                }, 
-                beginAtZero: true,
-                ticks: {
-                    font: { size: 10 }
-                }
-            }
-        },
-        plugins: {
-            legend: {
-                labels: { font: { size: 11 } }
+            plugins: {
+                legend: { labels: { font: { size: 11 } } },
+                datalabels: { display: false } // Oculto en barras
             }
         }
-    }
-});
- // Gráfica 2: Ocupación Actual (Gráfica de Pastel / Dona)
-let porcOcupado = (rhoActual * 100);
-let porcLibre = 100 - porcOcupado;
+    });
 
-chartRho = new Chart(document.getElementById('graficaRho'), {
-    type: 'pie', 
-    plugins: [ChartDataLabels], // <-- 1. Registramos el plugin aquí
-    data: {
-        // Corregida la concatenación de strings aquí:
-        labels: [
-            'Tiempo Ocupados Trabajando (' + porcOcupado.toFixed(1) + '%)', 
-            'Tiempo Libres Esperando (' + porcLibre.toFixed(1) + '%)'
-        ],
-        datasets: [{
-            data: [porcOcupado.toFixed(1), porcLibre.toFixed(1)],
-            backgroundColor: ['#e74c3c', '#2ecc71'],
-            borderWidth: 1
-        }]
-    },
-    options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-// 2. Configuración de las etiquetas visibles
-            datalabels: {
-                color: '#fff', // Color del texto (blanco para que resalte)
-                font: {
-                    weight: 'bold',
-                    size: 14 // Tamaño de la fuente del porcentaje
+    // Gráfica 2: Ocupación Actual (Pastel con etiquetas fijas)
+    let porcOcupado = (rhoActual * 100);
+    let porcLibre = 100 - porcOcupado;
+
+    chartRho = new Chart(document.getElementById('graficaRho'), {
+        type: 'pie', 
+        data: {
+            labels: [
+                'Tiempo Ocupados Trabajando (' + porcOcupado.toFixed(1) + '%)', 
+                'Tiempo Libres Esperando (' + porcLibre.toFixed(1) + '%)'
+            ],
+            datasets: [{
+                data: [porcOcupado.toFixed(1), porcLibre.toFixed(1)],
+                backgroundColor: ['#e74c3c', '#2ecc71'],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                // CONFIGURACIÓN DE ETIQUETAS FIJAS
+                datalabels: {
+                    display: true,
+                    color: '#ffffff',
+                    font: { weight: 'bold', size: 13 },
+                    formatter: function(value) {
+                        return value + '%';
+                    }
                 },
-                // Función para formatear el texto y agregar el símbolo de '%'
-                formatter: function(value, context) {
-                    return value + '%'; 
-                }
-            },
-            tooltip: {
-                callbacks: {
-                    label: function(context) { 
-                        return context.label + ': ' + context.raw + '%'; 
+                tooltip: {
+                    callbacks: {
+                        label: function(context) { 
+                            return context.label + ': ' + context.raw + '%'; 
+                        }
                     }
                 }
             }
         }
-    }
-});
+    });
+
     // Gráfica 3: Tiempo de Espera (Línea)
     chartWq = new Chart(document.getElementById('graficaWq'), {
         type: 'line',
@@ -269,11 +239,14 @@ chartRho = new Chart(document.getElementById('graficaRho'), {
                 backgroundColor: 'rgba(230, 126, 34, 0.1)',
                 fill: true,
                 pointBackgroundColor: coloresPuntos,
-                pointRadius: radiosPuntos,
+                pointRadius: 6,
                 tension: 0.2
             }]
         },
         options: {
+            plugins: {
+                datalabels: { display: false } // Oculto en líneas
+            },
             scales: {
                 x: { title: { display: true, text: 'Personal Disponible en Ventanilla', color: '#111', font: { weight: 'bold' } } },
                 y: { title: { display: true, text: 'Minutos Promedio de Espera por Cliente', color: '#111', font: { weight: 'bold' } }, beginAtZero: true }
