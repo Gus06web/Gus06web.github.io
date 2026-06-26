@@ -1,22 +1,16 @@
-  <!DOCTYPE html>
-
-  <html>
-    <head>
-
-<title>simulacion</title>
-
-
-    </head>
-    <body>
-<h1 style="font-family: Arial, Helvetica, sans-serif, sans-serif;">OFICINA POSTAL</h1>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Simulación Oficina Postal</title>
+    <meta charset="utf-8">
+</head>
+<body>
+<h1 style="font-family: Arial, Helvetica, sans-serif;">OFICINA POSTAL</h1>
 <h2 style="font-family: Arial, sans-serif;">LLEGADAS</h2>
-<p style="font-family: Arial, sans-serif;">simulacion de tiempos de espera</p>
+<p style="font-family: Arial, sans-serif;">Simulación de tiempos de espera</p>
 
 <div style="display: flex; flex-wrap: wrap; gap: 30px; padding: 40px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
-            background-image: url('Background1.1.jpg'); 
-            background-size: cover; 
-            background-position: center; 
-            background-attachment: fixed;
+            background-color: #f4f6f9;
             min-height: 90vh; 
             justify-content: center;">
 
@@ -29,8 +23,12 @@
                 <input type="number" id="nombre" name="nombre" placeholder="Ej. 3" value="3" style="padding: 10px 12px; border: 1px solid #e1e1e1; border-radius: 6px; font-size: 14px; color: #333; background-color: #fcfcfc; outline: none;">
             </div>
             <div style="display: flex; flex-direction: column; gap: 8px;">
-                <label for="tiempo" style="font-size: 13px; font-weight: 500; color: #666666;">Tiempo (minutos)</label>
+                <label for="tiempo" style="font-size: 13px; font-weight: 500; color: #666666;">Tiempo total (minutos)</label>
                 <input type="number" id="tiempo" name="tiempo" placeholder="Ej. 480" value="480" style="padding: 10px 12px; border: 1px solid #e1e1e1; border-radius: 6px; font-size: 14px; color: #333; background-color: #fcfcfc; outline: none;">
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+                <label for="numClientes" style="font-size: 13px; font-weight: 500; color: #666666;">Número de clientes totales</label>
+                <input type="number" id="numClientes" name="numClientes" placeholder="Ej. 80" value="80" style="padding: 10px 12px; border: 1px solid #e1e1e1; border-radius: 6px; font-size: 14px; color: #333; background-color: #fcfcfc; outline: none;">
             </div>
         </form>
 
@@ -44,23 +42,22 @@
         </div>
     </div>
 
-    <div style="flex: 2; min-width: 450px; max-width: 800px; background-color: #cfcfcf; padding: 30px; border-radius: 12px; border: 1px solid #eaeaea; display: flex; flex-direction: column; justify-content: space-between;">
-        <h2 style="margin-top: 0; margin-bottom: 30px; font-size: 18px; font-weight: 500; color: #111111; letter-spacing: -0.5px;">Métricas de Sensibilidad</h2>
-        <div style="display: flex; flex-direction: column; gap: 30px;">
-            <div style="display: flex; flex-wrap: wrap; gap: 20px;">
-                <div style="flex: 1; min-width: 200px;">
-                    <span style="display: block; text-align: center; font-size: 12px; color: #888888; margin-bottom: 10px; font-weight: 500;">Clientes en Cola (Lq)</span>
-                    <canvas id="graficaLq" style="max-height: 180px;"></canvas>
-                </div>
-                <div style="flex: 1; min-width: 200px;">
-                    <span style="display: block; text-align: center; font-size: 12px; color: #888888; margin-bottom: 10px; font-weight: 500;">Ocupación del Sistema (ρ)</span>
-                    <canvas id="graficaRho" style="max-height: 180px;"></canvas>
-                </div>
+    <div style="flex: 2; min-width: 450px; max-width: 800px; background-color: #cfcfcf; padding: 30px; border-radius: 12px; border: 1px solid #eaeaea; display: flex; flex-direction: column; gap: 25px;">
+        <h2 style="margin-top: 0; margin-bottom: 10px; font-size: 18px; font-weight: 500; color: #111111; letter-spacing: -0.5px;">Métricas de Sensibilidad y Rendimiento</h2>
+        
+        <div style="display: flex; flex-wrap: wrap; gap: 20px;">
+            <div style="flex: 1; min-width: 220px; background: rgba(255,255,255,0.4); padding: 10px; border-radius: 8px;">
+                <span style="display: block; text-align: center; font-size: 13px; color: #222; margin-bottom: 10px; font-weight: bold;">Clientes Esperando en Fila</span>
+                <canvas id="graficaLq" style="max-height: 200px;"></canvas>
             </div>
-            <div style="max-width: 400px; margin: 0 auto; width: 100%;">
-                <span style="display: block; text-align: center; font-size: 12px; color: #888888; margin-bottom: 10px; font-weight: 500;">Tiempo de Espera (Wq)</span>
-                <canvas id="graficaWq" style="max-height: 180px;"></canvas>
+            <div style="flex: 1; min-width: 220px; background: rgba(255,255,255,0.4); padding: 10px; border-radius: 8px;">
+                <span style="display: block; text-align: center; font-size: 13px; color: #222; margin-bottom: 10px; font-weight: bold;">Ocupación de los Empleados (%)</span>
+                <canvas id="graficaRho" style="max-height: 200px;"></canvas>
             </div>
+        </div>
+        <div style="max-width: 500px; margin: 0 auto; width: 100%; background: rgba(255,255,255,0.4); padding: 10px; border-radius: 8px;">
+            <span style="display: block; text-align: center; font-size: 13px; color: #222; margin-bottom: 10px; font-weight: bold;">Tiempo Estimado de Espera</span>
+            <canvas id="graficaWq" style="max-height: 200px;"></canvas>
         </div>
     </div>
 </div>
@@ -68,29 +65,40 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
 <script>
-// Variables globales para poder destruir y redibujar las gráficas limpiamente en cada clic
 let chartLq = null, chartRho = null, chartWq = null;
 
 function calcularOperacion() {
     // 1. CAPTURA DE VALORES
     let Emple = parseInt(document.getElementById("nombre").value);
     let tiempo = parseFloat(document.getElementById("tiempo").value);
+    let totalClientes = parseInt(document.getElementById("numClientes").value);
     let divResultado = document.getElementById("resultado");
 
-    // Validaciones de estabilidad y campos vacíos
-    if (isNaN(Emple) || isNaN(tiempo) || Emple < 3) {
+    if (isNaN(Emple) || isNaN(tiempo) || isNaN(totalClientes) || Emple < 1 || tiempo <= 0 || totalClientes <= 0) {
         divResultado.style.display = "inline-block";
-        divResultado.innerHTML = "<span style='color: #721c24;'><b>Error:</b> El sistema requiere mínimo 3 empleados para ser estable con λ=0.2 y μ=0.1.</span>";
+        divResultado.innerHTML = "<span style='color: #721c24;'><b>Error:</b> Por favor introduce valores numéricos mayores a cero.</span>";
         return;
     }
 
-    let lambda = 0.2; 
-    let mu = 0.1;     
+    // 2. LOGICA OPERACIONAL DEPENDIENDO DE LOS CLIENTES Y TIEMPO
+    // Tasa de llegada (lambda): Clientes por minuto
+    let lambda = totalClientes / tiempo; 
+    // Tasa de servicio estimada (mu): Un empleado atiende un promedio de 0.1 clientes por minuto (1 cliente cada 10 min)
+    let mu = 0.1; 
+    
     let r = lambda / mu; 
     let rhoActual = lambda / (Emple * mu);
 
-    // 2. CÁLCULO MATEMÁTICO DEL ESCENARIO ACTUAL
+    // Validación de estabilidad del sistema (Si está sobrecargado, no se puede calcular colas estables)
+    if (rhoActual >= 1) {
+        divResultado.style.display = "inline-block";
+        divResultado.innerHTML = "<span style='color: #721c24;'><b>Sistema Inestable:</b> Los empleados no dan abasto para la cantidad de clientes en ese tiempo. Incrementa los empleados o el tiempo de simulación.</span>";
+        return;
+    }
+
+    // CÁLCULO MODELO ANALÍTICO M/M/s
     let sumaSuma = 0.0;
     for (let n = 0; n < Emple; n++) {
         let factN = 1; for (let i = 1; i <= n; i++) { factN *= i; }
@@ -99,34 +107,31 @@ function calcularOperacion() {
     let factS = 1; for (let i = 1; i <= Emple; i++) { factS *= i; }
     let p0 = 1.0 / (sumaSuma + (Math.pow(r, Emple) / (factS * (1.0 - rhoActual))));
     let lqActual = (p0 * Math.pow(r, Emple) * rhoActual) / (factS * Math.pow(1.0 - rhoActual, 2));
-    let wqActual = lqActual / lambda; // Tiempo promedio en cola (Fórmula de Little)
+    let wqActual = lqActual / lambda; 
 
-    // Mostrar el cuadro de texto oculto con los resultados corregidos
+    // Mostrar resultados textuales sencillos
     divResultado.style.display = "inline-block";
     divResultado.innerHTML = 
-        "1. Promedio en cola: <b>" + lqActual.toFixed(2) + "</b> clientes.<br>" +
-        "2. Utilización promedio: <b>" + (rhoActual * 100).toFixed(2) + "%</b><br>" +
-        "3. Tiempo esp. promedio: <b>" + wqActual.toFixed(2) + "</b> min.";
+        "<b>Resultados del Escenario Actual:</b><br>" +
+        "• Promedio de clientes en fila: <b>" + lqActual.toFixed(2) + "</b> personas.<br>" +
+        "• Uso promedio del personal: <b>" + (rhoActual * 100).toFixed(2) + "%</b><br>" +
+        "• Tiempo de espera promedio: <b>" + wqActual.toFixed(2) + "</b> minutos.";
 
-    // =======================================================
-    // 3. GENERACIÓN DE DATOS PARA LAS 3 GRÁFICAS (RANGO s)
-    // =======================================================
+    // 3. PROYECCIONES PARA LAS GRÁFICAS DE LÍNEAS
     let labelsEmpleados = [];
     let datosLq = [];
-    let datosRho = [];
     let datosWq = [];
     let coloresPuntos = [];
     let radiosPuntos = [];
 
-    // Graficamos desde 3 empleados hasta el número ingresado + 4 para ver la proyección a futuro
-    let limiteGrafica = Math.max(7, Emple + 4);
+    // Graficamos un rango de empleados viables para comparar
+    let minEmpleadosGrafica = Math.max(1, Math.ceil(r + 0.1)); 
+    let maxEmpleadosGrafica = minEmpleadosGrafica + 4;
 
-    for (let s = 3; s <= limiteGrafica; s++) {
-        labelsEmpleados.push("s=" + s);
-        
+    for (let s = minEmpleadosGrafica; s <= maxEmpleadosGrafica; s++) {
+        labelsEmpleados.push(s + " Empleados");
         let rhoG = lambda / (s * mu);
-        datosRho.push((rhoG * 100).toFixed(2));
-
+        
         let sumaG = 0.0;
         for (let n = 0; n < s; n++) {
             let factN = 1; for (let i = 1; i <= n; i++) { factN *= i; }
@@ -139,30 +144,27 @@ function calcularOperacion() {
         datosLq.push(lqG.toFixed(2));
         datosWq.push((lqG / lambda).toFixed(2));
 
-        // Resaltar con un punto verde grande el empleado que el usuario escribió
         if (s === Emple) {
-            coloresPuntos.push("#2ecc71"); // Verde
-            radiosPuntos.push(7);          // Más grande
+            coloresPuntos.push("#2ecc71"); 
+            radiosPuntos.push(8);          
         } else {
-            coloresPuntos.push("#e74c3c"); // Rojo para los demás
+            coloresPuntos.push("#e74c3c"); 
             radiosPuntos.push(4);
         }
     }
 
-    // =======================================================
-    // 4. RENDERIZADO DE GRÁFICAS CON CHART.JS
-    // =======================================================
+    // 4. RENDERIZADO DE GRÁFICAS CON CHART.JS Y EJES EXPLICADOS
     if (chartLq) chartLq.destroy();
     if (chartRho) chartRho.destroy();
     if (chartWq) chartWq.destroy();
 
-    // Gráfica 1: Clientes en Cola
+    // Gráfica 1: Clientes en Cola (Línea)
     chartLq = new Chart(document.getElementById('graficaLq'), {
         type: 'line',
         data: {
             labels: labelsEmpleados,
             datasets: [{
-                label: 'Clientes (Lq)',
+                label: 'Cantidad de Clientes',
                 data: datosLq,
                 borderColor: '#3498db',
                 backgroundColor: 'rgba(52, 152, 219, 0.1)',
@@ -171,34 +173,47 @@ function calcularOperacion() {
                 pointRadius: radiosPuntos,
                 tension: 0.2
             }]
+        },
+        options: {
+            scales: {
+                x: { title: { display: true, text: 'Personal Disponible en Ventanilla', color: '#111', font: { weight: 'bold' } } },
+                y: { title: { display: true, text: 'Número Promedio de Personas en Fila', color: '#111', font: { weight: 'bold' } }, beginAtZero: true }
+            }
         }
     });
 
-    // Gráfica 2: Utilización
+    // Gráfica 2: Ocupación Actual (Gráfica de Pastel / Dona)
+    let porcOcupado = (rhoActual * 100);
+    let porcLibre = 100 - porcOcupado;
+    
     chartRho = new Chart(document.getElementById('graficaRho'), {
-        type: 'line',
+        type: 'pie', // Especificación de gráfica de pastel
         data: {
-            labels: labelsEmpleados,
+            labels: ['Tiempo Ocupados Trabajando (%)', 'Tiempo Libres Esperando (%)'],
             datasets: [{
-                label: 'Ocupación (%)',
-                data: datosRho,
-                borderColor: '#2bc4c5',
-                backgroundColor: 'rgba(43, 196, 197, 0.1)',
-                fill: true,
-                pointBackgroundColor: coloresPuntos,
-                pointRadius: radiosPuntos,
-                tension: 0.2
+                data: [porcOcupado.toFixed(1), porcLibre.toFixed(1)],
+                backgroundColor: ['#e74c3c', '#2ecc71'],
+                borderWidth: 1
             }]
+        },
+        options: {
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function(context) { return context.label + ': ' + context.raw + '%'; }
+                    }
+                }
+            }
         }
     });
 
-    // Gráfica 3: Tiempo de Espera
+    // Gráfica 3: Tiempo de Espera (Línea)
     chartWq = new Chart(document.getElementById('graficaWq'), {
         type: 'line',
         data: {
             labels: labelsEmpleados,
             datasets: [{
-                label: 'Minutos (Wq)',
+                label: 'Tiempo en Minutos',
                 data: datosWq,
                 borderColor: '#e67e22',
                 backgroundColor: 'rgba(230, 126, 34, 0.1)',
@@ -207,146 +222,112 @@ function calcularOperacion() {
                 pointRadius: radiosPuntos,
                 tension: 0.2
             }]
+        },
+        options: {
+            scales: {
+                x: { title: { display: true, text: 'Personal Disponible en Ventanilla', color: '#111', font: { weight: 'bold' } } },
+                y: { title: { display: true, text: 'Minutos Promedio de Espera por Cliente', color: '#111', font: { weight: 'bold' } }, beginAtZero: true }
+            }
         }
     });
 }
-async function generarReporteEjecutivoPDF() {
-    // 1. Instanciar las herramientas de jsPDF
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF('p', 'mm', 'a4'); // Hoja tamaño A4 estándar
 
-    // 2. Recuperar las variables actuales ingresadas en la interfaz
+async function generarReporteEjecutivoPDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF('p', 'mm', 'a4');
+
     let Emple = parseInt(document.getElementById("nombre").value);
     let tiempo = parseFloat(document.getElementById("tiempo").value);
+    let totalClientes = parseInt(document.getElementById("numClientes").value);
 
-    // Validación por si intentan exportar antes de presionar el botón 1
-    if (isNaN(Emple) || isNaN(tiempo) || Emple < 3) {
-        alert("Por favor, introduce datos válidos e inicia la simulación antes de exportar el PDF.");
-        return;
-    }
-
-    // Comprobar que los lienzos de las gráficas existan en pantalla
     let canvasLq = document.getElementById('graficaLq');
     let canvasRho = document.getElementById('graficaRho');
     let canvasWq = document.getElementById('graficaWq');
 
     if (!canvasLq || !canvasRho || !canvasWq) {
-        alert("Primero debes calcular la simulación para construir las gráficas correspondientes.");
+        alert("Primero debes presionar 'Calcular Parámetros' para generar los datos antes de exportar.");
         return;
     }
 
-    // Mostrar alerta de carga en lo que se procesan los gráficos en memoria
-    alert("Generando reporte ejecutivo con gráficas de rendimiento... Por favor espere un momento.");
-
-    // =======================================================
-    // 3. DISEÑO DEL ENCABEZADO Y TEXTOS DEL PDF (iText Style)
-    // =======================================================
-    // Banner Superior de Color Azul Marino Sólido (X, Y, Ancho, Alto)
     doc.setFillColor(26, 54, 93);
     doc.rect(0, 0, 210, 32, 'F');
 
-    // Títulos en Blanco
     doc.setTextColor(255, 255, 255);
     doc.setFont("helvetica", "bold");
     doc.setFontSize(16);
-    doc.text("REPORTES DE SIMULACIÓN - TEORÍA DE COLAS", 15, 14);
+    doc.text("REPORTE DE RENDIMIENTO - OFICINA POSTAL", 15, 14);
     
     doc.setFont("helvetica", "italic");
     doc.setFontSize(10);
-    doc.text("Modelo Analítico M/M/s | Grupo: 4s12 | Reporte Ejecutivo", 15, 23);
+    doc.text("Análisis de Tiempos y Servicio al Cliente | Reporte Entendible", 15, 23);
 
-    // --- SECCIÓN 1: VARIABLES ---
     doc.setTextColor(26, 54, 93);
     doc.setFont("helvetica", "bold");
     doc.setFontSize(12);
-    doc.text("1. Variables de Configuración Introducidas:", 15, 45);
+    doc.text("1. Configuración de Entrada Evaluada:", 15, 45);
 
     doc.setTextColor(45, 55, 72);
     doc.setFont("helvetica", "normal");
     doc.setFontSize(11);
-    doc.text(`• Número de Empleados Evaluados (s): ${Emple} servidores independientes`, 20, 54);
-    doc.text(`• Tiempo Estipulado de Simulación: ${tiempo} minutos continuos`, 20, 62);
+    doc.text(`• Empleados en servicio: ${Emple}`, 20, 54);
+    doc.text(`• Tiempo evaluado: ${tiempo} minutos`, 20, 62);
+    doc.text(`• Clientes totales atendidos: ${totalClientes} clientes`, 20, 70);
 
-    // --- SECCIÓN 2: RESULTADOS ---
     doc.setTextColor(26, 54, 93);
     doc.setFont("helvetica", "bold");
-    doc.text("2. Resultados del Escenario Calculado:", 15, 76);
+    doc.text("2. Resultados Generales de la Simulación:", 15, 82);
 
-    // Volvemos a extraer el texto numérico que calculó el botón anterior
     let resumenTexto = document.getElementById("resultado").innerText;
     doc.setTextColor(45, 55, 72);
     doc.setFont("helvetica", "normal");
     
-    // Inyectar renglones de resultados limpios de etiquetas HTML
     let lineasResultados = resumenTexto.split('\n');
-    let ejeY = 86;
+    let ejeY = 92;
     lineasResultados.forEach(linea => {
         if(linea.trim() !== "") {
-            doc.text(`• ${linea}`, 20, ejeY);
+            doc.text(`${linea}`, 20, ejeY);
             ejeY += 8;
         }
     });
 
-    // =======================================================
-    // 4. PROCESAMIENTO E INYECCIÓN DE LAS 3 GRÁFICAS DE CHART.JS
-    // =======================================================
     doc.setTextColor(26, 54, 93);
     doc.setFont("helvetica", "bold");
-    doc.text("3. Gráficas de Sensibilidad y Rendimiento Operativo:", 15, ejeY + 6);
+    doc.text("3. Comportamiento Visual y Gráficas de Apoyo:", 15, ejeY + 6);
 
     try {
-        // html2canvas toma fotos instantáneas en alta definición de cada panel de Chart.js
         const imgLq = await html2canvas(canvasLq, { scale: 2 });
         const imgRho = await html2canvas(canvasRho, { scale: 2 });
         const imgWq = await html2canvas(canvasWq, { scale: 2 });
 
-        // Convertir las capturas a string de datos PNG inyectables
         const dataLq = imgLq.toDataURL('image/png');
         const dataRho = imgRho.toDataURL('image/png');
         const dataWq = imgWq.toDataURL('image/png');
 
-        // Posicionar Gráfica 1 (Clientes en Cola)
         let yGraficas = ejeY + 14;
         doc.setFontSize(10);
-        doc.setTextColor(113, 128, 150);
-        doc.text("Curva de Clientes Promedio en Fila (Lq)", 15, yGraficas);
-        doc.addImage(dataLq, 'PNG', 15, yGraficas + 3, 85, 55); // (Imagen, Tipo, X, Y, Ancho, Alto)
+        doc.text("Estimado de Clientes en Fila", 15, yGraficas);
+        doc.addImage(dataLq, 'PNG', 15, yGraficas + 3, 85, 55);
 
-        // Posicionar Gráfica 2 (Utilización)
-        doc.text("Porcentaje de Ocupación Laboral (rho)", 110, yGraficas);
+        doc.text("Uso del Tiempo de los Empleados", 110, yGraficas);
         doc.addImage(dataRho, 'PNG', 110, yGraficas + 3, 85, 55);
 
-        // Posicionar Gráfica 3 (Tiempo de Espera) centrada abajo
-        doc.text("Tiempo de Espera Promedio en Minutos (Wq)", 60, yGraficas + 68);
+        doc.text("Minutos Promedio que Espera un Cliente", 60, yGraficas + 68);
         doc.addImage(dataWq, 'PNG', 60, yGraficas + 71, 85, 55);
 
-        // --- PIE DE PÁGINA ---
         doc.setDrawColor(226, 232, 240);
-        doc.line(15, 275, 195, 275); // Línea final separadora
+        doc.line(15, 275, 195, 275);
 
         doc.setTextColor(148, 163, 184);
         doc.setFont("helvetica", "italic");
         doc.setFontSize(9);
-        doc.text("Fin del reporte ejecutivo. Generado automáticamente mediante el motor web estructurado para GitHub Pages.", 105, 282, { align: "center" });
+        doc.text("Reporte administrativo de simulación de colas optimizado.", 105, 282, { align: "center" });
 
-        // 5. Forzar la descarga directa del archivo con marca de tiempo única
-        doc.save(`Reporte_Ejecutivo_Colas_${Date.now()}.pdf`);
-
+        doc.save(`Reporte_Postal_${Date.now()}.pdf`);
     } catch (error) {
-        console.error("Error al renderizar los lienzos en el documento PDF:", error);
-        alert("Ocurrió un contratiempo al procesar los vectores gráficos para el PDF: " + error.message);
+        console.error(error);
+        alert("Ocurrió un inconveniente al generar los vectores del PDF.");
     }
 }
-
 </script>
-
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-
-
-
-    </body>
-
-
-  </html>
+</body>
+</html>
