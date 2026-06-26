@@ -158,30 +158,62 @@ function calcularOperacion() {
     if (chartRho) chartRho.destroy();
     if (chartWq) chartWq.destroy();
 
-    // Gráfica 1: Clientes en Cola (Línea)
-    chartLq = new Chart(document.getElementById('graficaLq'), {
-        type: 'line',
-        data: {
-            labels: labelsEmpleados,
-            datasets: [{
-                label: 'Cantidad de Clientes',
-                data: datosLq,
-                borderColor: '#3498db',
-                backgroundColor: 'rgba(52, 152, 219, 0.1)',
-                fill: true,
-                pointBackgroundColor: coloresPuntos,
-                pointRadius: radiosPuntos,
-                tension: 0.2
-            }]
+ // Gráfica 1: Clientes en Cola (Línea)
+chartLq = new Chart(document.getElementById('graficaLq'), {
+    type: 'line',
+    data: {
+        labels: labelsEmpleados,
+        datasets: [{
+            label: 'Cantidad de Clientes',
+            data: datosLq,
+            borderColor: '#3498db',
+            backgroundColor: 'rgba(52, 152, 219, 0.1)',
+            fill: true,
+            pointBackgroundColor: coloresPuntos,
+            pointRadius: radiosPuntos,
+            tension: 0.2
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            x: { 
+                title: { 
+                    display: true, 
+                    text: 'Personal Disponible en Ventanilla', 
+                    color: '#111', 
+                    font: { weight: 'bold', size: 12 },
+                    padding: { top: 10, bottom: 0 } // Despeja el título hacia abajo
+                },
+                ticks: {
+                    maxRotation: 0, // Fuerza las etiquetas horizontales
+                    minRotation: 0,
+                    autoSkip: true,  // Evita colisiones si hay muchas barras/puntos
+                    font: { size: 10 }
+                }
+            },
+            y: { 
+                title: { 
+                    display: true, 
+                    text: 'Número Promedio de Personas en Fila', 
+                    color: '#111', 
+                    font: { weight: 'bold', size: 12 },
+                    padding: { top: 0, bottom: 10 } // Despeja el título hacia la izquierda
+                }, 
+                beginAtZero: true,
+                ticks: {
+                    font: { size: 10 }
+                }
+            }
         },
-        options: {
-            scales: {
-                x: { title: { display: true, text: 'Personal Disponible en Ventanilla', color: '#111', font: { weight: 'bold' } } },
-                y: { title: { display: true, text: 'Número Promedio de Personas en Fila', color: '#111', font: { weight: 'bold' } }, beginAtZero: true }
+        plugins: {
+            legend: {
+                labels: { font: { size: 11 } }
             }
         }
-    });
-
+    }
+});
     // Gráfica 2: Ocupación Actual (Gráfica de Pastel / Dona)
     let porcOcupado = (rhoActual * 100);
     let porcLibre = 100 - porcOcupado;
