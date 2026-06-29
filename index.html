@@ -23,7 +23,7 @@
         <form style="display: flex; flex-direction: column; gap: 20px; margin-bottom: 30px;">
             <div style="display: flex; flex-direction: column; gap: 8px;">
                 <label for="nombre" style="font-size: 13px; font-weight: 500; color: #666666;">Empleados activos</label>
-                <input type="number" id="nombre" name="nombre" placeholder="Ej. 3" value="3" style="padding: 10px 12px; border: 1px solid #e1e1e1; border-radius: 6px; font-size: 14px; color: #333; background-color: #fcfcfc; outline: none;">
+                <input type="number" id="nombre" name="nombre" placeholder="Ej. 3" value="5" style="padding: 10px 12px; border: 1px solid #e1e1e1; border-radius: 6px; font-size: 14px; color: #333; background-color: #fcfcfc; outline: none;">
             </div>
             <div style="display: flex; flex-direction: column; gap: 8px;">
                 <label for="tiempo" style="font-size: 13px; font-weight: 500; color: #666666;">Tiempo total (minutos)</label>
@@ -31,7 +31,7 @@
             </div>
             <div style="display: flex; flex-direction: column; gap: 8px;">
                 <label for="numClientes" style="font-size: 13px; font-weight: 500; color: #666666;">Número de clientes totales</label>
-                <input type="number" id="numClientes" name="numClientes" placeholder="Ej. 80" value="80" style="padding: 10px 12px; border: 1px solid #e1e1e1; border-radius: 6px; font-size: 14px; color: #333; background-color: #fcfcfc; outline: none;">
+                <input type="number" id="numClientes" name="numClientes" placeholder="Ej. 80" value="100" style="padding: 10px 12px; border: 1px solid #e1e1e1; border-radius: 6px; font-size: 14px; color: #333; background-color: #fcfcfc; outline: none;">
             </div>
         </form>
 
@@ -72,8 +72,9 @@
 
 <script>
 let chartLq = null, chartRho = null, chartWq = null;
+// Guardamos los valores calculados globalmente para evitar leer el HTML corrupto en el PDF
+let globalLq = 0, globalRho = 0, globalWq = 0;
 
-// Desactivamos la carga global automática del plugin para que no altere las gráficas de barra y línea
 Chart.register(ChartDataLabels);
 
 function calcularOperacion() {
@@ -110,12 +111,17 @@ function calcularOperacion() {
     let lqActual = (p0 * Math.pow(r, Emple) * rhoActual) / (factS * Math.pow(1.0 - rhoActual, 2));
     let wqActual = lqActual / lambda; 
 
+    // Almacenamos en las globales limpias
+    globalLq = lqActual.toFixed(2);
+    globalRho = (rhoActual * 100).toFixed(2);
+    globalWq = wqActual.toFixed(2);
+
     divResultado.style.display = "inline-block";
     divResultado.innerHTML = 
         "<b>Resultados del Escenario Actual:</b><br>" +
-        "• Promedio de clientes en fila: <b>" + lqActual.toFixed(2) + "</b> personas.<br>" +
-        "• Uso promedio del personal: <b>" + (rhoActual * 100).toFixed(2) + "%</b><br>" +
-        "• Tiempo de espera promedio: <b>" + wqActual.toFixed(2) + "</b> minutos.";
+        "• Promedio de clientes en fila: <b>" + globalLq + "</b> personas.<br>" +
+        "• Uso promedio del personal: <b>" + globalRho + "%</b><br>" +
+        "• Tiempo de espera promedio: <b>" + globalWq + "</b> minutos.";
 
     let labelsEmpleados = [];
     let datosLq = [];
@@ -144,7 +150,7 @@ function calcularOperacion() {
 
         if (s === Emple) {
             coloresPuntos.push("#2ecc71"); 
-            radiasPuntos = 8;                  
+            radiosPuntos.push(8);                  
         } else {
             coloresPuntos.push("#e74c3c"); 
             radiosPuntos.push(4);
@@ -155,7 +161,7 @@ function calcularOperacion() {
     if (chartRho) chartRho.destroy();
     if (chartWq) chartWq.destroy();
 
-    // Gráfica 1: Clientes en Cola (Barras)
+    // Gráfica 1: Clientes en Cola (Ajustado padding izquierdo para evitar cortes)
     chartLq = new Chart(document.getElementById('graficaLq'), {
         type: 'bar', 
         data: {
@@ -171,35 +177,33 @@ function calcularOperacion() {
         options: {
             responsive: true,
             maintainAspectRatio: false,
+            layout: {
+                padding: { left: 15, right: 10, top: 10, bottom: 10 }
+            },
             scales: {
                 x: { 
-                    title: { display: true, text: 'Personal Disponible en Ventanilla', color: '#111', font: { weight: 'bold', size: 12 }, padding: { top: 10, bottom: 0 } },
-                    ticks: { maxRotation: 0, minRotation: 0, autoSkip: true, font: { size: 10 } }
+                    title: { display: true, text: 'Personal en Ventanilla', color: '#111', font: { weight: 'bold', size: 11 } }
                 },
                 y: { 
-                    title: { display: true, text: 'Número Promedio de Personas en Fila', color: '#111', font: { weight: 'bold', size: 12 }, padding: { top: 0, bottom: 10 } }, 
-                    beginAtZero: true,
-                    ticks: { font: { size: 10 } }
+                    title: { display: true, text: 'Clientes en Fila', color: '#111', font: { weight: 'bold', size: 11 } }, 
+                    beginAtZero: true
                 }
             },
             plugins: {
-                legend: { labels: { font: { size: 11 } } },
-                datalabels: { display: false } // Oculto en barras
+                legend: { display: false },
+                datalabels: { display: false }
             }
         }
     });
 
-    // Gráfica 2: Ocupación Actual (Pastel con etiquetas fijas)
     let porcOcupado = (rhoActual * 100);
     let porcLibre = 100 - porcOcupado;
 
+    // Gráfica 2: Ocupación
     chartRho = new Chart(document.getElementById('graficaRho'), {
         type: 'pie', 
         data: {
-            labels: [
-                'Tiempo Ocupados Trabajando (' + porcOcupado.toFixed(1) + '%)', 
-                'Tiempo Libres Esperando (' + porcLibre.toFixed(1) + '%)'
-            ],
+            labels: ['Tiempo Ocupados', 'Tiempo Libres'],
             datasets: [{
                 data: [porcOcupado.toFixed(1), porcLibre.toFixed(1)],
                 backgroundColor: ['#e74c3c', '#2ecc71'],
@@ -209,28 +213,19 @@ function calcularOperacion() {
         options: {
             responsive: true,
             maintainAspectRatio: false,
+            layout: { padding: 10 },
             plugins: {
-                // CONFIGURACIÓN DE ETIQUETAS FIJAS
                 datalabels: {
                     display: true,
                     color: '#ffffff',
-                    font: { weight: 'bold', size: 13 },
-                    formatter: function(value) {
-                        return value + '%';
-                    }
-                },
-                tooltip: {
-                    callbacks: {
-                        label: function(context) { 
-                            return context.label + ': ' + context.raw + '%'; 
-                        }
-                    }
+                    font: { weight: 'bold', size: 12 },
+                    formatter: function(value) { return value + '%'; }
                 }
             }
         }
     });
 
-    // Gráfica 3: Tiempo de Espera (Línea)
+    // Gráfica 3: Tiempos de Espera (Ajustado padding izquierdo para evitar recortes)
     chartWq = new Chart(document.getElementById('graficaWq'), {
         type: 'line',
         data: {
@@ -242,17 +237,23 @@ function calcularOperacion() {
                 backgroundColor: 'rgba(230, 126, 34, 0.1)',
                 fill: true,
                 pointBackgroundColor: coloresPuntos,
-                pointRadius: 6,
+                pointRadius: radiosPuntos,
                 tension: 0.2
             }]
         },
         options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            layout: {
+                padding: { left: 15, right: 10, top: 10, bottom: 10 }
+            },
             plugins: {
-                datalabels: { display: false } // Oculto en líneas
+                legend: { display: false },
+                datalabels: { display: false }
             },
             scales: {
-                x: { title: { display: true, text: 'Personal Disponible en Ventanilla', color: '#111', font: { weight: 'bold' } } },
-                y: { title: { display: true, text: 'Minutos Promedio de Espera por Cliente', color: '#111', font: { weight: 'bold' } }, beginAtZero: true }
+                x: { title: { display: true, text: 'Personal en Ventanilla', color: '#111', font: { weight: 'bold', size: 11 } } },
+                y: { title: { display: true, text: 'Minutos de Espera', color: '#111', font: { weight: 'bold', size: 11 } }, beginAtZero: true }
             }
         }
     });
@@ -275,52 +276,39 @@ async function generarReporteEjecutivoPDF() {
         return;
     }
 
+    // Encabezado Azul
     doc.setFillColor(26, 54, 93);
     doc.rect(0, 0, 210, 32, 'F');
 
     doc.setTextColor(255, 255, 255);
     doc.setFont("helvetica", "bold");
     doc.setFontSize(16);
-    doc.text("REPORTE DE RENDIMIENTO - OFICINA POSTAL", 15, 14);
+    doc.text("REPORTE OPERATIVO DE SERVICIO Y CAPACIDAD", 15, 14);
     
     doc.setFont("helvetica", "italic");
     doc.setFontSize(10);
-    doc.text("Análisis de Tiempos y Servicio al Cliente | Reporte Entendible", 15, 23);
+    doc.text("Análisis simplificado de atención para directivos y tomadores de decisiones.", 15, 23);
 
+    // 1. Resumen Inicial
     doc.setTextColor(26, 54, 93);
     doc.setFont("helvetica", "bold");
     doc.setFontSize(12);
-    doc.text("1. Configuración de Entrada Evaluada:", 15, 45);
+    doc.text("1. Resumen del Escenario Analizado:", 15, 45);
 
     doc.setTextColor(45, 55, 72);
     doc.setFont("helvetica", "normal");
     doc.setFontSize(11);
-    doc.text(`• Empleados en servicio: ${Emple}`, 20, 54);
-    doc.text(`• Tiempo evaluado: ${tiempo} minutos`, 20, 62);
-    doc.text(`• Clientes totales atendidos: ${totalClientes} clientes`, 20, 70);
+    doc.text(`• Personal en ventanilla actualmente: ${Emple} empleados activos`, 20, 54);
+    doc.text(`• Período de tiempo evaluado: ${tiempo} minutos de jornada comercial`, 20, 62);
+    doc.text(`• Flujo total de visitantes esperados: ${totalClientes} clientes`, 20, 70);
 
+    // 2. Desglose simplificado de Gráficas
     doc.setTextColor(26, 54, 93);
     doc.setFont("helvetica", "bold");
-    doc.text("2. Resultados Generales de la Simulación:", 15, 82);
-
-    let resumenTexto = document.getElementById("resultado").innerText;
-    doc.setTextColor(45, 55, 72);
-    doc.setFont("helvetica", "normal");
-    
-    let lineasResultados = resumenTexto.split('\n');
-    let ejeY = 92;
-    lineasResultados.forEach(linea => {
-        if(linea.trim() !== "") {
-            doc.text(`${linea}`, 20, ejeY);
-            ejeY += 8;
-        }
-    });
-
-    doc.setTextColor(26, 54, 93);
-    doc.setFont("helvetica", "bold");
-    doc.text("3. Comportamiento Visual y Gráficas de Apoyo:", 15, ejeY + 6);
+    doc.text("2. Desglose e Interpretación de Indicadores Visuales:", 15, 82);
 
     try {
+        // Renderizar las capturas de las gráficas con escala alta para excelente nitidez
         const imgLq = await html2canvas(canvasLq, { scale: 2 });
         const imgRho = await html2canvas(canvasRho, { scale: 2 });
         const imgWq = await html2canvas(canvasWq, { scale: 2 });
@@ -329,26 +317,74 @@ async function generarReporteEjecutivoPDF() {
         const dataRho = imgRho.toDataURL('image/png');
         const dataWq = imgWq.toDataURL('image/png');
 
-        let yGraficas = ejeY + 14;
+        // --- GRÁFICA A: Clientes en fila ---
+        doc.setFontSize(11);
+        doc.setFont("helvetica", "bold");
+        doc.setTextColor(45, 55, 72);
+        doc.text("A) Clientes Esperando en Fila (Tamaño de la Cola)", 15, 93);
+        doc.addImage(dataLq, 'PNG', 15, 96, 80, 50);
+
+        // Bloque de información simplificado
+        doc.setFont("helvetica", "normal");
         doc.setFontSize(10);
-        doc.text("Estimado de Clientes en Fila", 15, yGraficas);
-        doc.addImage(dataLq, 'PNG', 15, yGraficas + 3, 85, 55);
+        let descLq = doc.splitTextToSize(
+            "¿Qué representa?\n" +
+            "Muestra cuántos clientes se acumularían físicamente en espera según el personal disponible.\n\n" +
+            "A menor cantidad de barras o altura, menor es el riesgo de abandono en la sucursal.", 95
+        );
+        doc.text(descLq, 102, 106);
 
-        doc.text("Uso del Tiempo de los Empleados", 110, yGraficas);
-        doc.addImage(dataRho, 'PNG', 110, yGraficas + 3, 85, 55);
+        // --- GRÁFICA B: Ocupación ---
+        doc.setFontSize(11);
+        doc.setFont("helvetica", "bold");
+        doc.text("B) Porcentaje de Ocupación del Personal (Productividad)", 15, 155);
+        doc.addImage(dataRho, 'PNG', 15, 158, 80, 50);
 
-        doc.text("Minutos Promedio que Espera un Cliente", 60, yGraficas + 68);
-        doc.addImage(dataWq, 'PNG', 60, yGraficas + 71, 85, 55);
+        // Bloque de información simplificado
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(10);
+        let descRho = doc.splitTextToSize(
+            "¿Qué representa?\n" +
+            "Determina el uso real del tiempo del equipo de trabajo en las condiciones vigentes.\n\n", 95
+        );
+        doc.text(descRho, 102, 168);
 
+        // --- NUEVA PÁGINA (PÁGINA 2) ---
+        doc.addPage();
+        
+        // Encabezado para la página 2
+        doc.setFillColor(26, 54, 93);
+        doc.rect(0, 0, 210, 15, 'F');
+        doc.setTextColor(255, 255, 255);
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(11);
+        doc.text("CONTINUACIÓN DEL ANÁLISIS DE RENDIMIENTO", 15, 10);
+
+        // --- GRÁFICA C: Tiempos de espera ---
+        doc.setTextColor(45, 55, 72);
+        doc.setFontSize(11);
+        doc.text("C) Tiempo Estimado de Espera por Cliente (Experiencia del Usuario)", 15, 28);
+        doc.addImage(dataWq, 'PNG', 15, 33, 85, 50);
+
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(10);
+        let descWq = doc.splitTextToSize(
+            "¿Qué representa?\n" +
+            "El promedio exacto de minutos que un usuario permanece en la fila antes de ser atendido.\n\n" +
+            "El punto verde destaca la operación actual. Los puntos rojos ilustran cómo decrecen los tiempos añadiendo más ventanillas.", 95
+        );
+        doc.text(descWq, 105, 45);
+
+
+        // Pie de página administrativo fijo
         doc.setDrawColor(226, 232, 240);
         doc.line(15, 275, 195, 275);
-
         doc.setTextColor(148, 163, 184);
         doc.setFont("helvetica", "italic");
-        doc.setFontSize(9);
-        doc.text("Reporte administrativo de simulación de colas optimizado.", 105, 282, { align: "center" });
+        doc.setFontSize(8);
+        doc.text("Glosario administrativo de soporte - Documentación confidencial de planeación de infraestructura comercial.", 105, 282, { align: "center" });
 
-        doc.save(`Reporte_Postal_${Date.now()}.pdf`);
+        doc.save(`Reporte_Simplificado_Postal_${Date.now()}.pdf`);
     } catch (error) {
         console.error(error);
         alert("Ocurrió un inconveniente al generar los vectores del PDF.");
